@@ -10,8 +10,10 @@ Works for EMC disks array (like VNX 5300, 5200, etc)
  - As Nagios user, create a certicifate if you don't want to 
   specify EMC global admin password in the Naviseccli command 
   line (recommended...) :
-     naviseccli -user sysadmin -password sysadmin -scope 0 -AddUserSecurity
-     
+```
+  naviseccli -user sysadmin -password sysadmin -scope 0 -AddUserSecurity
+```
+  
 # Examples
 
 ```
