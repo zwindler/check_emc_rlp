@@ -1,6 +1,8 @@
 #!/usr/bin/perl
 ############################################################################
 #07/01/2014 - First version, some improvement on argument checking to do
+############################################################################
+#18/04/2017 - Fixing doc, output and comments
 ### Prerequisites###########################################################
 # - Install Naviseccli for Linux on your Nagios server
 # - As Nagios user, create a certicifate if you don't want to 
@@ -32,7 +34,7 @@ my $IP_ADDRESS = shift || "127.0.0.1";
 $naviseccli_cmd =~ s/\QIP_ADDRESS\E/$IP_ADDRESS/g;
 
 #By design
-# - we warn if there is 1 or less free RLP for each LUN
+# - we warn if there is 1 or less free LUN in RLP for each LUN
 # - we raise a critical if there are no more free RLP
 #                   AND if one (or more) LUN is 95% full
 my $warning = shift || 1;
@@ -96,8 +98,8 @@ sub process_data
 		}
 	else
 		{
-		print "UNKNOWN: No LUN using RLP has been found. Exiting.\n";
-		exit $ERRORS{"UNKNOWN"};
+		print "OK: No LUN requiring free LUNs in RLP have been found. Exiting.\n";
+		exit $ERRORS{"OK"};
 		}
 	my $lun_num;
 	my $lun_percent;
@@ -106,12 +108,12 @@ sub process_data
 	if ( $rlp_per_lun >= $warning )
 		{
 		$state = "OK";
-		$print_answer = "OK: there are enough free RLP";			
+		$print_answer = "OK: there are enough free LUNs in RLP";			
 		}
 	else
 		{
 		$state = "WARNING";
-		$print_answer = "WARNING: there are less than 1 free RLP for each lun! ";
+		$print_answer = "WARNING: there are less than $rlp_per_lun free LUNS in RLP (for each LUN using RLP)! You asked me to warn you if the is less than $warning free LUN in RLP per LUN using RLP";
 		}
 		
 	#Now we generate perfdata and check for a critical event 
@@ -123,7 +125,7 @@ sub process_data
 			#Here, at least one lun is over critical threshold and there
 			#is no more free RLP to extend it
 			$state = "CRITICAL";
-			$print_answer = "CRITICAL: there are no free RLP and one or more lun are over $critical%!!!";
+			$print_answer = "CRITICAL: there are no free LUNS in RLP and one (or more) LUN requiring RLP is using above $critical% of allocated snapshot space!!!";
 			}
 		$perfdata .= "lun".$lun_num."=".$lun_percent."%;$critical;$critical;0;100 ";
 		}
